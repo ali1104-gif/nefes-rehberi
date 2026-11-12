@@ -1,0 +1,5 @@
+1) github.com'da yeni (bos) bir repo olusturun.
+2) Bu klasorun ICERIGINI repoya yukleyin (Add file > Upload files; .github klasoru dahil).
+3) Actions sekmesi > "APK derle" > son calisma > Artifacts > NefesRehberi-apk indirin.
+4) Zip'ten cikan .apk dosyasini telefona atip kurun (bilinmeyen kaynaklara izin verin).
+Alternatif: Android Studio'da klasoru acip Build > Build APK.

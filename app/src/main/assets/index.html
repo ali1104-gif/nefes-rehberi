@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nefes Rehberi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e6fffa 0%, #f0fdfa 50%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+
+        .breath-core {
+            will-change: transform;
+            transform-origin: center center;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .progress-circle {
+            transition: stroke-dashoffset 0.1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Aktif adım vurgulama efekti */
+        .step-badge-active {
+            background-color: #0d9488 !important;
+            color: #ffffff !important;
+            border-color: #0f766e !important;
+            transform: scale(1.04);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased">
+
+    <!-- Üst Bar & Navigasyon -->
+    <header class="w-full max-w-xl mx-auto px-4 pt-6 pb-2 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-brand-900 tracking-tight">Nefes Rehberi</h1>
+        </div>
+
+        <!-- Sekmeler -->
+        <nav class="flex bg-white/80 p-1 rounded-2xl shadow-sm border border-brand-100 backdrop-blur-sm">
+            <button id="tab-btn-practice" class="px-4 py-1.5 text-xs font-semibold rounded-xl transition-all duration-200 bg-brand-600 text-white shadow-sm">
+                Egzersiz
+            </button>
+            <button id="tab-btn-learn" class="px-4 py-1.5 text-xs font-semibold rounded-xl transition-all duration-200 text-slate-600 hover:text-brand-800">
+                Nasıl Yapılır?
+            </button>
+        </nav>
+    </header>
+
+    <!-- Ana Konteyner -->
+    <main class="flex-1 w-full max-w-xl mx-auto px-4 py-4 flex flex-col justify-center items-center">
+
+        <!-- EGZERSİZ SEKMESİ -->
+        <section id="tab-practice" class="tab-content active w-full">
+            
+            <!-- Teknik Seçimi -->
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-4 mb-4 shadow-sm border border-brand-100">
+                <label for="technique-select" class="block text-[11px] font-bold text-brand-800 uppercase tracking-wider mb-1.5">
+                    Nefes Tekniği
+                </label>
+                <select id="technique-select" class="w-full bg-white border border-brand-200 text-slate-800 font-medium rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer shadow-sm">
+                    <option value="box">Kutu Nefesi (Odaklanma & Stres)</option>
+                    <option value="relax">4-7-8 Nefesi (Uyku & Rahatlama)</option>
+                    <option value="balanced">Dengeli Nefes (Denge & Uyum)</option>
+                    <option value="calm">Sakinleşme Nefesi (Hızlı Sakinleşme)</option>
+                </select>
+            </div>
+
+            <!-- Görsel Nefes Çemberi Kartı -->
+            <div class="relative bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-lg border border-brand-100 flex flex-col items-center justify-center min-h-[340px] overflow-hidden">
+                
+                <!-- Nefes Çemberi -->
+                <div class="relative w-60 h-60 sm:w-64 sm:h-64 flex items-center justify-center">
+                    
+                    <!-- SVG İlerleme Çizgisi -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+                        <circle class="text-brand-100" stroke-width="3.5" stroke="currentColor" fill="transparent" r="44" cx="50" cy="50"/>
+                        <circle id="progress-ring" class="progress-circle text-brand-500" stroke-width="3.5" stroke-dasharray="276.46" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="44" cx="50" cy="50"/>
+                    </svg>
+
+                    <!-- Genişleyen/Küçülen Çekirdek Çember -->
+                    <div id="breath-circle" class="breath-core w-40 h-40 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-brand-500 to-teal-400 shadow-md shadow-brand-500/20 flex flex-col items-center justify-center text-white text-center z-10">
+                        <span id="phase-label" class="text-xs font-bold tracking-widest uppercase text-teal-100 mb-1">HAZIR</span>
+                        <span id="timer-display" class="text-5xl font-extrabold tracking-tight">0</span>
+                    </div>
+
+                </div>
+
+                <!-- Ok İşaretli Akış Şeması (Adım Adım İlerleme) -->
+                <div id="flow-steps-container" class="mt-5 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 px-2"></div>
+
+                <!-- Tur Sayıcı -->
+                <div class="mt-4 flex items-center justify-between w-full max-w-xs px-3.5 py-1.5 bg-brand-50 rounded-xl border border-brand-100 text-xs font-medium text-brand-800">
+                    <span>Tamamlanan Tur</span>
+                    <span id="cycle-count" class="bg-brand-600 text-white px-2 py-0.5 rounded-md font-bold text-xs">0</span>
+                </div>
+
+            </div>
+
+            <!-- Kontrol Butonları -->
+            <div class="mt-5 flex items-center gap-2.5 w-full">
+                <!-- Başlat/Durdur Butonu -->
+                <button id="start-btn" type="button" class="flex-1 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-700 hover:to-teal-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md shadow-brand-600/20 transition-all duration-200 active:scale-98 flex items-center justify-center gap-2 text-base cursor-pointer">
+                    <svg id="start-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="start-btn-text">Başlat</span>
+                </button>
+
+                <!-- Sıfırla Butonu -->
+                <button id="reset-btn" type="button" title="Sıfırla" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold p-3.5 rounded-2xl transition-all shadow-sm active:scale-95 flex items-center justify-center cursor-pointer">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+
+                <!-- Ses Butonu -->
+                <button id="sound-btn" type="button" title="Ses İpucu" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold p-3.5 rounded-2xl transition-all shadow-sm active:scale-95 flex items-center justify-center cursor-pointer">
+                    <svg id="sound-icon-on" class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <svg id="sound-icon-off" class="w-5 h-5 text-slate-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                    </svg>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- NASIL YAPILIR SEKMESİ -->
+        <section id="tab-learn" class="tab-content w-full">
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-md border border-brand-100 space-y-5">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Doğru Nefes Rehberi</h2>
+                    <p class="mt-1 text-slate-600 text-xs leading-relaxed">
+                        Doğru diyafram nefesi stres hormonlarını anında düşürür ve zihinsel odaklanmayı artırır.
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="bg-brand-50/70 p-3.5 rounded-2xl border border-brand-100 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-lg bg-brand-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">1</span>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xs">Dik Oturun</h3>
+                            <p class="text-[11px] text-slate-600 mt-0.5">Sırtınızı dik tutun, omuzlarınızı ve çenenizi gevşetin.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-brand-50/70 p-3.5 rounded-2xl border border-brand-100 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-lg bg-brand-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">2</span>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xs">Burnunuzdan Nefes Alın</h3>
+                            <p class="text-[11px] text-slate-600 mt-0.5">Nefes alırken göğsünüz değil karnınız yavaşça dışarı doğru genişlesin.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-brand-50/70 p-3.5 rounded-2xl border border-brand-100 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-lg bg-brand-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">3</span>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xs">Ağzınızdan Yavaşça Verin</h3>
+                            <p class="text-[11px] text-slate-600 mt-0.5">Nefes verirken dudaklarınızı hafif büzerek sakin bir şekilde boşaltın.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="go-to-exercise" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition-all text-xs cursor-pointer">
+                    Egzersize Dön
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-3 text-[11px] text-brand-800/60 font-medium">
+        Günde birkaç dakika nefes egzersizi zihninizi tazeler.
+    </footer>
+
+    <!-- JAVASCRIPT LOGİĞİ -->
+    <script>
+        // Web Audio API Ses Üretici
+        let audioCtx = null;
+        function playChime(freq = 440) {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.55);
+            } catch (e) {
+                console.log('Audio error', e);
+            }
+        }
+
+        // Nefes Teknikleri Veri Yapısı
+        const TECHNIQUES = {
+            box: {
+                name: 'Kutu Nefesi (Odaklanma & Stres)',
+                phases: [
+                    { name: 'Nefes Al', duration: 4, scale: 1.35, pitch: 523.25 },
+                    { name: 'Tut', duration: 4, scale: 1.35, pitch: 587.33 },
+                    { name: 'Nefes Ver', duration: 4, scale: 1.0, pitch: 392.00 },
+                    { name: 'Tut', duration: 4, scale: 1.0, pitch: 440.00 }
+                ]
+            },
+            relax: {
+                name: '4-7-8 Nefesi (Uyku & Rahatlama)',
+                phases: [
+                    { name: 'Nefes Al', duration: 4, scale: 1.35, pitch: 523.25 },
+                    { name: 'Tut', duration: 7, scale: 1.35, pitch: 587.33 },
+                    { name: 'Nefes Ver', duration: 8, scale: 1.0, pitch: 349.23 }
+                ]
+            },
+            balanced: {
+                name: 'Dengeli Nefes (Denge & Uyum)',
+                phases: [
+                    { name: 'Nefes Al', duration: 4, scale: 1.35, pitch: 523.25 },
+                    { name: 'Nefes Ver', duration: 4, scale: 1.0, pitch: 392.00 }
+                ]
+            },
+            calm: {
+                name: 'Sakinleşme Nefesi (Hızlı Sakinleşme)',
+                phases: [
+                    { name: 'Nefes Al', duration: 4, scale: 1.35, pitch: 523.25 },
+                    { name: 'Tut', duration: 2, scale: 1.35, pitch: 587.33 },
+                    { name: 'Nefes Ver', duration: 6, scale: 1.0, pitch: 349.23 }
+                ]
+            }
+        };
+
+        // Uygulama Durumu (State)
+        const state = {
+            isRunning: false,
+            currentKey: 'box',
+            phaseIndex: 0,
+            secondsRemaining: 0,
+            totalPhaseDuration: 0,
+            completedCycles: 0,
+            intervalId: null,
+            soundEnabled: true
+        };
+
+        // DOM Elementleri
+        let elements = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            elements = {
+                startBtn: document.getElementById('start-btn'),
+                startBtnText: document.getElementById('start-btn-text'),
+                startIcon: document.getElementById('start-icon'),
+                resetBtn: document.getElementById('reset-btn'),
+                soundBtn: document.getElementById('sound-btn'),
+                soundIconOn: document.getElementById('sound-icon-on'),
+                soundIconOff: document.getElementById('sound-icon-off'),
+                techniqueSelect: document.getElementById('technique-select'),
+                breathCircle: document.getElementById('breath-circle'),
+                phaseLabel: document.getElementById('phase-label'),
+                timerDisplay: document.getElementById('timer-display'),
+                progressRing: document.getElementById('progress-ring'),
+                flowStepsContainer: document.getElementById('flow-steps-container'),
+                cycleCount: document.getElementById('cycle-count'),
+                tabBtnPractice: document.getElementById('tab-btn-practice'),
+                tabBtnLearn: document.getElementById('tab-btn-learn'),
+                tabPractice: document.getElementById('tab-practice'),
+                tabLearn: document.getElementById('tab-learn'),
+                goToExercise: document.getElementById('go-to-exercise')
+            };
+
+            // Olay Dinleyicileri
+            elements.startBtn.addEventListener('click', toggleStartStop);
+            elements.resetBtn.addEventListener('click', resetExercise);
+            elements.soundBtn.addEventListener('click', toggleSound);
+            elements.techniqueSelect.addEventListener('change', onTechniqueChange);
+            
+            // Nefes tekniği kutusuna tıklandığı/dokunulduğu an sayacı ve animasyonu anında duraklat
+            const pauseIfRunning = () => {
+                if (state.isRunning) pauseExercise();
+            };
+            ['click', 'mousedown', 'pointerdown', 'touchstart', 'focus'].forEach(eventType => {
+                elements.techniqueSelect.addEventListener(eventType, pauseIfRunning);
+            });
+
+            elements.tabBtnPractice.addEventListener('click', () => switchTab('practice'));
+            elements.tabBtnLearn.addEventListener('click', () => switchTab('learn'));
+            elements.goToExercise.addEventListener('click', () => switchTab('practice'));
+
+            resetExercise();
+        });
+
+        function toggleStartStop() {
+            if (state.isRunning) {
+                pauseExercise();
+            } else {
+                startExercise();
+            }
+        }
+
+        function startExercise() {
+            state.isRunning = true;
+            
+            elements.startBtnText.textContent = "Durdur";
+            elements.startBtn.classList.remove('from-brand-600', 'to-teal-600', 'hover:from-brand-700', 'hover:to-teal-700');
+            elements.startBtn.classList.add('from-rose-500', 'to-red-600', 'hover:from-rose-600', 'hover:to-red-700');
+            elements.startIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+
+            if (state.secondsRemaining <= 0) {
+                state.phaseIndex = 0;
+                startPhase();
+            } else {
+                // Kalan süre boyunca CSS geçişini kaldığı yerden devam ettir
+                const tech = TECHNIQUES[state.currentKey];
+                const phase = tech.phases[state.phaseIndex];
+                elements.breathCircle.style.transition = `transform ${state.secondsRemaining}s linear`;
+                elements.breathCircle.style.transform = `scale(${phase.scale})`;
+                runTimer();
+            }
+        }
+
+        function pauseExercise() {
+            if (!state.isRunning) return;
+            state.isRunning = false;
+            clearInterval(state.intervalId);
+
+            // Görsel çember animasyonunu tam durduğu andaki boyutunda dondur
+            if (elements.breathCircle) {
+                const computedStyle = window.getComputedStyle(elements.breathCircle);
+                const currentTransform = computedStyle.transform;
+                elements.breathCircle.style.transition = 'none';
+                elements.breathCircle.style.transform = currentTransform;
+            }
+
+            elements.startBtnText.textContent = "Devam Et";
+            elements.startBtn.classList.remove('from-rose-500', 'to-red-600', 'hover:from-rose-600', 'hover:to-red-700');
+            elements.startBtn.classList.add('from-brand-600', 'to-teal-600', 'hover:from-brand-700', 'hover:to-teal-700');
+            elements.startIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+        }
+
+        function resetExercise() {
+            state.isRunning = false;
+            clearInterval(state.intervalId);
+            state.phaseIndex = 0;
+            state.secondsRemaining = 0;
+            state.completedCycles = 0;
+
+            elements.startBtnText.textContent = "Başlat";
+            elements.startBtn.classList.remove('from-rose-500', 'to-red-600', 'hover:from-rose-600', 'hover:to-red-700');
+            elements.startBtn.classList.add('from-brand-600', 'to-teal-600', 'hover:from-brand-700', 'hover:to-teal-700');
+            elements.startIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+
+            elements.phaseLabel.textContent = "HAZIR";
+            elements.timerDisplay.textContent = "0";
+            elements.cycleCount.textContent = "0";
+
+            elements.breathCircle.style.transition = "transform 0.4s ease-out";
+            elements.breathCircle.style.transform = "scale(1)";
+            updateProgressRing(0);
+            renderFlowSteps();
+        }
+
+        function startPhase() {
+            const tech = TECHNIQUES[state.currentKey];
+            const phase = tech.phases[state.phaseIndex];
+
+            state.secondsRemaining = phase.duration;
+            state.totalPhaseDuration = phase.duration;
+
+            elements.phaseLabel.textContent = phase.name;
+            elements.timerDisplay.textContent = state.secondsRemaining;
+
+            playChime(phase.pitch);
+
+            elements.breathCircle.style.transition = `transform ${phase.duration}s linear`;
+            elements.breathCircle.style.transform = `scale(${phase.scale})`;
+
+            renderFlowSteps();
+            runTimer();
+        }
+
+        function runTimer() {
+            clearInterval(state.intervalId);
+            updateProgressRing(state.secondsRemaining / state.totalPhaseDuration);
+
+            state.intervalId = setInterval(() => {
+                state.secondsRemaining--;
+                
+                if (state.secondsRemaining >= 0) {
+                    elements.timerDisplay.textContent = state.secondsRemaining;
+                    updateProgressRing(state.secondsRemaining / state.totalPhaseDuration);
+                }
+
+                if (state.secondsRemaining <= 0) {
+                    clearInterval(state.intervalId);
+                    nextPhase();
+                }
+            }, 1000);
+        }
+
+        function nextPhase() {
+            const tech = TECHNIQUES[state.currentKey];
+            state.phaseIndex++;
+
+            if (state.phaseIndex >= tech.phases.length) {
+                state.phaseIndex = 0;
+                state.completedCycles++;
+                elements.cycleCount.textContent = state.completedCycles;
+            }
+
+            if (state.isRunning) {
+                startPhase();
+            }
+        }
+
+        // Adım akış şemasını çizer ([4sn Nefes Al] -> [4sn Tut] -> ...)
+        function renderStepFlow() {
+            const tech = TECHNIQUES[state.currentKey];
+            elements.stepFlowContainer.innerHTML = '';
+
+            tech.phases.forEach((p, idx) => {
+                const badge = document.createElement('span');
+                badge.id = `step-badge-${idx}`;
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-medium border border-brand-200 bg-white/90 text-brand-800 transition-all duration-300';
+                badge.textContent = `${p.duration}sn ${p.name}`;
+
+                elements.stepFlowContainer.appendChild(badge);
+
+                if (idx < tech.phases.length - 1) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'text-brand-400 text-xs font-bold';
+                    arrow.textContent = '→';
+                    elements.stepFlowContainer.appendChild(arrow);
+                }
+            });
+
+            highlightActiveStep();
+        }
+
+        function highlightActiveStep() {
+            const tech = TECHNIQUES[state.currentKey];
+            tech.phases.forEach((_, idx) => {
+                const badge = document.getElementById(`step-badge-${idx}`);
+                if (badge) {
+                    if (idx === state.phaseIndex && state.isRunning) {
+                        badge.classList.add('step-badge-active');
+                    } else {
+                        badge.classList.remove('step-badge-active');
+                    }
+                }
+            });
+        }
+
+        // Çemberin altındaki "Sonraki Adım" rozetini günceller
+        function updateNextPhasePill() {
+            const tech = TECHNIQUES[state.currentKey];
+            const nextIndex = (state.phaseIndex + 1) % tech.phases.length;
+            const nextPhase = tech.phases[nextIndex];
+            elements.nextPhasePill.textContent = `${nextPhase.name} (${nextPhase.duration} sn)`;
+        }
+
+        function updateProgressRing(ratio) {
+            const circumference = 2 * Math.PI * 44; // ~276.46
+            const offset = circumference - (ratio * circumference);
+            elements.progressRing.style.strokeDashoffset = offset;
+        }
+
+        function onTechniqueChange(e) {
+            state.currentKey = e.target.value;
+            resetExercise();
+        }
+
+        function renderFlowSteps() {
+            const tech = TECHNIQUES[state.currentKey];
+            if (!elements.flowStepsContainer) return;
+
+            elements.flowStepsContainer.innerHTML = tech.phases.map((phase, idx) => {
+                const isActive = (state.isRunning || state.secondsRemaining > 0) && idx === state.phaseIndex;
+                const badgeClasses = isActive
+                    ? 'bg-brand-600 text-white font-bold shadow-md ring-2 ring-brand-300 scale-105'
+                    : 'bg-white/90 text-slate-700 border border-brand-200 opacity-75';
+
+                const arrowSvg = idx < tech.phases.length - 1
+                    ? `<svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`
+                    : '';
+
+                return `
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                        <div class="px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 ${badgeClasses}">
+                            ${phase.duration}sn ${phase.name}
+                        </div>
+                        ${arrowSvg}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            if (elements.soundIconOn && elements.soundIconOff) {
+                elements.soundIconOn.classList.toggle('hidden', !state.soundEnabled);
+                elements.soundIconOff.classList.toggle('hidden', state.soundEnabled);
+            }
+        }
+
+        function switchTab(tabName) {
+            if (tabName === 'practice') {
+                elements.tabPractice.classList.add('active');
+                elements.tabLearn.classList.remove('active');
+
+                elements.tabBtnPractice.classList.add('bg-brand-600', 'text-white', 'shadow-sm');
+                elements.tabBtnPractice.classList.remove('text-slate-600');
+
+                elements.tabBtnLearn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm');
+                elements.tabBtnLearn.classList.add('text-slate-600');
+            } else {
+                elements.tabPractice.classList.remove('active');
+                elements.tabLearn.classList.add('active');
+
+                elements.tabBtnLearn.classList.add('bg-brand-600', 'text-white', 'shadow-sm');
+                elements.tabBtnLearn.classList.remove('text-slate-600');
+
+                elements.tabBtnPractice.classList.remove('bg-brand-600', 'text-white', 'shadow-sm');
+                elements.tabBtnPractice.classList.add('text-slate-600');
+
+                if (state.isRunning) pauseExercise();
+            }
+        }
+    </script>
+</body>
+</html>
