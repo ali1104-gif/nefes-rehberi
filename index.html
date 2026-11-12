@@ -118,6 +118,14 @@
                     <option value="balanced">Dengeli Nefes (Denge & Uyum)</option>
                     <option value="calm">Sakinleşme Nefesi (Hızlı Sakinleşme)</option>
                 </select>
+
+                <span class="block text-[11px] font-bold text-brand-800 uppercase tracking-wider mt-3.5 mb-1.5">Süre</span>
+                <div id="duration-group" class="grid grid-cols-4 gap-2" role="group" aria-label="Egzersiz süresi">
+                    <button type="button" data-seconds="0" class="duration-btn py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer">Süresiz</button>
+                    <button type="button" data-seconds="30" class="duration-btn py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer">30 sn</button>
+                    <button type="button" data-seconds="60" class="duration-btn py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer">1 dk</button>
+                    <button type="button" data-seconds="120" class="duration-btn py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer">2 dk</button>
+                </div>
             </div>
 
             <!-- Görsel Nefes Çemberi Kartı -->
@@ -147,6 +155,12 @@
                 <div class="mt-4 flex items-center justify-between w-full max-w-xs px-3.5 py-1.5 bg-brand-50 rounded-xl border border-brand-100 text-xs font-medium text-brand-800">
                     <span>Tamamlanan Tur</span>
                     <span id="cycle-count" class="bg-brand-600 text-white px-2 py-0.5 rounded-md font-bold text-xs">0</span>
+                </div>
+
+                <!-- Kalan Süre (süre seçildiyse görünür) -->
+                <div id="session-row" class="hidden mt-2 flex items-center justify-between w-full max-w-xs px-3.5 py-1.5 bg-brand-50 rounded-xl border border-brand-100 text-xs font-medium text-brand-800">
+                    <span>Kalan Süre</span>
+                    <span id="session-remaining" class="bg-brand-600 text-white px-2 py-0.5 rounded-md font-bold text-xs">0:00</span>
                 </div>
 
             </div>
@@ -252,7 +266,7 @@
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 
                 gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.4, audioCtx.currentTime + 0.04);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
                 
                 osc.connect(gain);
@@ -310,7 +324,9 @@
             totalPhaseDuration: 0,
             completedCycles: 0,
             intervalId: null,
-            soundEnabled: true
+            soundEnabled: true,
+            sessionLimit: 0,    // toplam egzersiz süresi (sn); 0 = süresiz
+            sessionElapsed: 0   // geçen süre (sn)
         };
 
         // DOM Elementleri
@@ -336,7 +352,10 @@
                 tabBtnLearn: document.getElementById('tab-btn-learn'),
                 tabPractice: document.getElementById('tab-practice'),
                 tabLearn: document.getElementById('tab-learn'),
-                goToExercise: document.getElementById('go-to-exercise')
+                goToExercise: document.getElementById('go-to-exercise'),
+                durationGroup: document.getElementById('duration-group'),
+                sessionRow: document.getElementById('session-row'),
+                sessionRemaining: document.getElementById('session-remaining')
             };
 
             // Olay Dinleyicileri
@@ -344,6 +363,8 @@
             elements.resetBtn.addEventListener('click', resetExercise);
             elements.soundBtn.addEventListener('click', toggleSound);
             elements.techniqueSelect.addEventListener('change', onTechniqueChange);
+            elements.durationGroup.addEventListener('click', onDurationClick);
+            highlightDurationButtons();
             
             // Nefes tekniği kutusuna tıklandığı/dokunulduğu an sayacı ve animasyonu anında duraklat
             const pauseIfRunning = () => {
@@ -378,6 +399,10 @@
 
             if (state.secondsRemaining <= 0) {
                 state.phaseIndex = 0;
+                state.sessionElapsed = 0;
+                state.completedCycles = 0;
+                elements.cycleCount.textContent = "0";
+                updateSessionDisplay();
                 startPhase();
             } else {
                 // Kalan süre boyunca CSS geçişini kaldığı yerden devam ettir
@@ -414,6 +439,8 @@
             state.phaseIndex = 0;
             state.secondsRemaining = 0;
             state.completedCycles = 0;
+            state.sessionElapsed = 0;
+            updateSessionDisplay();
 
             elements.startBtnText.textContent = "Başlat";
             elements.startBtn.classList.remove('from-rose-500', 'to-red-600', 'hover:from-rose-600', 'hover:to-red-700');
@@ -461,11 +488,83 @@
                     updateProgressRing(state.secondsRemaining / state.totalPhaseDuration);
                 }
 
+                // Seçilen toplam süre dolduysa egzersizi bitir
+                if (state.sessionLimit > 0) {
+                    state.sessionElapsed++;
+                    updateSessionDisplay();
+                    if (state.sessionElapsed >= state.sessionLimit) {
+                        finishSession();
+                        return;
+                    }
+                }
+
                 if (state.secondsRemaining <= 0) {
                     clearInterval(state.intervalId);
                     nextPhase();
                 }
             }, 1000);
+        }
+
+        // Süre seçimi: Süresiz / 30 sn / 1 dk / 2 dk
+        function onDurationClick(e) {
+            const btn = e.target.closest('.duration-btn');
+            if (!btn) return;
+            state.sessionLimit = Number(btn.dataset.seconds);
+            highlightDurationButtons();
+            resetExercise();
+        }
+
+        function highlightDurationButtons() {
+            elements.durationGroup.querySelectorAll('.duration-btn').forEach(btn => {
+                const active = Number(btn.dataset.seconds) === state.sessionLimit;
+                btn.classList.toggle('bg-brand-600', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('border-brand-600', active);
+                btn.classList.toggle('shadow-sm', active);
+                btn.classList.toggle('bg-white', !active);
+                btn.classList.toggle('text-brand-800', !active);
+                btn.classList.toggle('border-brand-200', !active);
+            });
+        }
+
+        function updateSessionDisplay() {
+            if (!elements.sessionRow) return;
+            if (state.sessionLimit <= 0) {
+                elements.sessionRow.classList.add('hidden');
+                return;
+            }
+            elements.sessionRow.classList.remove('hidden');
+            const left = Math.max(0, state.sessionLimit - state.sessionElapsed);
+            const m = Math.floor(left / 60);
+            const sec = String(left % 60).padStart(2, '0');
+            elements.sessionRemaining.textContent = `${m}:${sec}`;
+        }
+
+        function finishSession() {
+            clearInterval(state.intervalId);
+            const tech = TECHNIQUES[state.currentKey];
+            // Süre, turun son adımıyla aynı anda bittiyse o turu da say
+            if (state.secondsRemaining <= 0 && state.phaseIndex === tech.phases.length - 1) {
+                state.completedCycles++;
+                elements.cycleCount.textContent = state.completedCycles;
+            }
+
+            state.isRunning = false;
+            state.secondsRemaining = 0;
+            state.phaseIndex = 0;
+
+            elements.startBtnText.textContent = "Tekrar Başla";
+            elements.startBtn.classList.remove('from-rose-500', 'to-red-600', 'hover:from-rose-600', 'hover:to-red-700');
+            elements.startBtn.classList.add('from-brand-600', 'to-teal-600', 'hover:from-brand-700', 'hover:to-teal-700');
+            elements.startIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+
+            elements.phaseLabel.textContent = "TAMAMLANDI";
+            elements.timerDisplay.textContent = "✓";
+            elements.breathCircle.style.transition = "transform 0.8s ease-out";
+            elements.breathCircle.style.transform = "scale(1)";
+            updateProgressRing(0);
+            renderFlowSteps();
+            playChime(659.25);
         }
 
         function nextPhase() {
